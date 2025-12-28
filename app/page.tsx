@@ -304,12 +304,7 @@ export default function Site() {
         <div className="grid md:grid-cols-2 gap-10 items-center">
           <div>
             <h2 className="text-2xl md:text-3xl font-semibold">{t.about.heading}</h2>
-            {t.about.quote && (
-              <blockquote className="mt-4 p-4 rounded-xl bg-slate-100 text-slate-700 border border-slate-200">
-                {t.about.overview && <span className="block text-sm leading-relaxed">{t.about.overview}</span>}
-                <span className="block mt-2 italic font-medium">“{t.about.quote}”</span>
-              </blockquote>
-            )}
+            
             <p className="mt-4 text-slate-600 leading-relaxed">{t.about.p1}</p>
             <p className="mt-4 text-slate-600 leading-relaxed">{t.about.p2}</p>
 
