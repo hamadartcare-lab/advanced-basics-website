@@ -95,35 +95,120 @@ function SafeImage({ src, alt, fill, className, priority, sizes }: SafeImageProp
 type Partner = {
   name: string;
   href?: string;
+  catalog?: string;
   img?: ImageSrcLike;
 };
 
-function PartnersCarousel({ partners }: { partners: Partner[] }) {
+function PartnersCarousel({ partners, isRTL }: { partners: Partner[]; isRTL: boolean }) {
+  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+
+  useEffect(() => {
+    if (!selectedPartner) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedPartner(null);
+    };
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [selectedPartner]);
+
+  const labels = isRTL
+    ? {
+        prompt: "اختر ما تريد فتحه",
+        website: "زيارة موقع الوكالة",
+        catalog: "فتح الكتالوج",
+        close: "إغلاق",
+      }
+    : {
+        prompt: "Choose what you want to open",
+        website: "Visit partner website",
+        catalog: "Open catalog",
+        close: "Close",
+      };
+
   return (
     <div className="relative">
-      <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory scroll-smooth">
+      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {partners.map((p, idx) => {
           const key = p?.name ? `${p.name}-${idx}` : `partner-${idx}`;
-          const href = typeof p?.href === "string" && p.href.trim() ? p.href : "#";
           const name = typeof p?.name === "string" && p.name.trim() ? p.name : "Partner";
 
           return (
-            <a
+            <button
+              type="button"
               key={key}
-              href={href}
-              target={href === "#" ? undefined : "_blank"}
-              rel={href === "#" ? undefined : "noreferrer"}
-              className="snap-start shrink-0 w-44 sm:w-52 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow transition"
+              onClick={() => setSelectedPartner(p)}
+              className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#2E7C7C] focus:ring-offset-2"
+              aria-label={`${labels.prompt}: ${name}`}
             >
               <div className="relative w-full h-20">
                 {/* Never pass null to Next/Image; SafeImage guarantees a string */}
                 <SafeImage src={p?.img} alt={name} fill className="object-contain" sizes="220px" />
               </div>
               <div className="mt-3 text-sm font-semibold text-slate-800 text-center">{name}</div>
-            </a>
+            </button>
           );
         })}
       </div>
+
+      {selectedPartner && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
+          role="presentation"
+          onMouseDown={() => setSelectedPartner(null)}
+        >
+          <div
+            className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="partner-dialog-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedPartner(null)}
+              className="absolute end-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-xl text-slate-600 transition hover:bg-slate-200"
+              aria-label={labels.close}
+            >
+              ×
+            </button>
+
+            <div className="mx-auto h-24 w-44 relative">
+              <SafeImage
+                src={selectedPartner.img}
+                alt={selectedPartner.name}
+                fill
+                className="object-contain"
+                sizes="176px"
+              />
+            </div>
+            <h3 id="partner-dialog-title" className="mt-4 text-center text-2xl font-bold text-slate-900">
+              {selectedPartner.name}
+            </h3>
+            <p className="mt-2 text-center text-sm text-slate-500">{labels.prompt}</p>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <a
+                href={selectedPartner.href}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-xl border border-[#2E7C7C] px-4 py-3 text-center text-sm font-semibold text-[#2E7C7C] transition hover:bg-teal-50"
+              >
+                {labels.website}
+              </a>
+              <a
+                href={selectedPartner.catalog}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-xl bg-[#2E7C7C] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#256969]"
+              >
+                {labels.catalog}
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -194,14 +279,30 @@ export default function Site() {
   // ✅ IMPORTANT: images must exist under /public/partners
   // Example path: public/partners/asset.png -> src: "/partners/asset.png"
   const partners: Partner[] = [
-    { name: "Asset Medical", href: "https://www.assetmedical.com/", img: "/partners/asset.jpeg" },
+    {
+      name: "Asset Medical",
+      href: "https://www.assetmedical.com/",
+      catalog: "/catalogs/asset-medical-catalog.pdf",
+      img: "/partners/asset.jpeg"
+    },
     {
       name: "Temena",
       href: "https://temena.com/en/local-anesthesia-and-regional-anesthesia/",
+      catalog: "/catalogs/temena-catalog.pdf",
       img: "/partners/temena.jpeg"
     },
-    { name: "Formed", href: "https://www.formedtech.net/", img: "/partners/formed.jpeg" },
-        { name: "Bioptimal", href: "https://www.bioptimalg.com/Home", img: "/partners/bioptimal.jpeg" }
+    {
+      name: "Formed",
+      href: "https://www.formedtech.net/",
+      catalog: "/catalogs/formed-catalog.pdf",
+      img: "/partners/formed.jpeg"
+    },
+    {
+      name: "Bioptimal",
+      href: "https://www.bioptimalg.com/Home",
+      catalog: "/catalogs/bioptimal-catalog.pdf",
+      img: "/partners/bioptimal.jpeg"
+    }
   ];
 
   function scrollToId(id: string) {
@@ -356,7 +457,7 @@ export default function Site() {
         <h2 className="text-2xl md:text-3xl font-semibold text-center">{t.partners.heading}</h2>
         <p className="mt-3 text-center text-slate-600 max-w-3xl mx-auto">{t.partners.sub}</p>
         <div className="mt-10">
-          <PartnersCarousel partners={partners} />
+          <PartnersCarousel partners={partners} isRTL={isRTL} />
         </div>
       </section>
 
