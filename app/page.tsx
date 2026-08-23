@@ -124,7 +124,6 @@ function PartnersCarousel({ partners }: { partners: Partner[] }) {
           );
         })}
       </div>
-      <div className="text-xs text-slate-500 mt-2 text-center">Swipe / scroll to view all partners</div>
     </div>
   );
 }
@@ -196,7 +195,6 @@ export default function Site() {
   // Example path: public/partners/asset.png -> src: "/partners/asset.png"
   const partners: Partner[] = [
     { name: "Asset Medical", href: "https://www.assetmedical.com/", img: "/partners/asset.jpeg" },
-    { name: "SPM Medicare", href: "https://spmmedicare.com/", img: "/partners/spm.jpeg" },
     {
       name: "Temena",
       href: "https://temena.com/en/local-anesthesia-and-regional-anesthesia/",
@@ -359,7 +357,6 @@ export default function Site() {
         <p className="mt-3 text-center text-slate-600 max-w-3xl mx-auto">{t.partners.sub}</p>
         <div className="mt-10">
           <PartnersCarousel partners={partners} />
-          <p className="mt-3 text-center text-xs text-slate-500">{t.partners.hint}</p>
         </div>
       </section>
 
