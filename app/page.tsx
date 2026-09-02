@@ -260,6 +260,7 @@ function runSelfTests() {
 // Main Page
 // =====================
 export function Site({ initialLang = "ar" }: { initialLang?: "ar" | "en" }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lang = initialLang;
   const t = lang === "ar" ? AR : EN;
   const isRTL = lang === "ar";
@@ -310,111 +311,152 @@ export function Site({ initialLang = "ar" }: { initialLang?: "ar" | "en" }) {
   function scrollToId(id: string) {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    setMobileMenuOpen(false);
   }
 
   return (
     <div className={"min-h-screen bg-slate-50 text-slate-800 " + (isRTL ? "rtl" : "ltr")} dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur bg-white/90 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 shadow-[0_1px_20px_rgba(15,23,42,0.04)] backdrop-blur-xl">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            {/* ✅ Company logo
-               Put your logo file here:
-               public/logo.png
-               Then it will load via: /logo.png
-            */}
-            <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-slate-200 bg-white">
+            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-teal-100 bg-[#2E7C7C] shadow-sm sm:h-14 sm:w-14 sm:rounded-2xl">
               <SafeImage src="/logo.png" alt="Company Logo" fill className="object-contain" priority sizes="56px" />
             </div>
-            <div className="leading-tight">
-              <div className="font-semibold text-base">{t.companyName}</div>
-              <div className="text-xs text-slate-500">{t.companyArabic}</div>
+            <div className="hidden leading-tight sm:block">
+              <div className="text-sm font-bold tracking-tight text-slate-900 lg:text-base">{t.companyName}</div>
+              <div className="mt-1 text-[11px] text-slate-500">{t.companyArabic}</div>
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-7 text-sm">
+          <nav className="hidden items-center gap-6 text-sm lg:flex">
             {navItems.map((n) => (
-              <button key={n.id} onClick={() => scrollToId(n.id)} className="text-slate-600 hover:text-slate-900">
+              <button key={n.id} onClick={() => scrollToId(n.id)} className="font-medium text-slate-600 transition hover:text-[#2E7C7C]">
                 {n.label}
               </button>
             ))}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <a
               href={t.contact.whatsappHref}
-              className="hidden sm:inline-flex rounded-xl px-3 py-2 text-sm border border-slate-300 hover:bg-slate-100"
+              className="hidden items-center gap-2 rounded-xl border border-teal-100 bg-teal-50 px-4 py-2.5 text-sm font-semibold text-[#256969] transition hover:bg-teal-100 md:inline-flex"
               target="_blank"
               rel="noreferrer"
             >
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
               {t.cta.whatsapp}
             </a>
             <a
               href={lang === "ar" ? "/en" : "/"}
-              className="rounded-xl px-3 py-2 text-sm bg-[#2E7C7C] text-white hover:opacity-90"
+              className="rounded-xl bg-[#2E7C7C] px-3 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#256969]"
               hrefLang={lang === "ar" ? "en" : "ar"}
               aria-label={lang === "ar" ? "Switch to English" : "التبديل إلى العربية"}
             >
               {lang === "ar" ? "English" : "العربية"}
             </a>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-700 lg:hidden"
+              aria-expanded={mobileMenuOpen}
+              aria-label={t.nav.menu}
+            >
+              <span className="relative block h-4 w-5">
+                <span className={`absolute left-0 top-0 h-0.5 w-5 bg-current transition ${mobileMenuOpen ? "translate-y-[7px] rotate-45" : ""}`} />
+                <span className={`absolute left-0 top-[7px] h-0.5 w-5 bg-current transition ${mobileMenuOpen ? "opacity-0" : ""}`} />
+                <span className={`absolute left-0 top-[14px] h-0.5 w-5 bg-current transition ${mobileMenuOpen ? "-translate-y-[7px] -rotate-45" : ""}`} />
+              </span>
+            </button>
           </div>
         </div>
 
-        {/* Mobile nav */}
-        <div className="md:hidden border-t border-slate-200">
-          <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap gap-2 text-sm">
+        {mobileMenuOpen && (
+          <div className="border-t border-slate-200 bg-white lg:hidden">
+            <nav className="mx-auto grid max-w-7xl gap-1 px-4 py-3 text-sm sm:px-6">
             {navItems.map((n) => (
               <button
                 key={n.id}
                 onClick={() => scrollToId(n.id)}
-                className="rounded-lg px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700"
+                className="rounded-lg px-3 py-3 text-start font-medium text-slate-700 hover:bg-slate-50 hover:text-[#2E7C7C]"
               >
                 {n.label}
               </button>
             ))}
+            </nav>
           </div>
-        </div>
+        )}
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#2E7C7C]">
-        <div className="absolute inset-0 -z-10 bg-[#2E7C7C]" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 text-white">
+      <section className="relative isolate overflow-hidden bg-[#123f43] text-white">
+        <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_15%_20%,rgba(61,163,163,0.55),transparent_35%),linear-gradient(125deg,#123f43_0%,#1f696b_55%,#2e7c7c_100%)]" />
+        <div className="absolute -end-28 top-10 -z-10 h-80 w-80 rounded-full border border-white/10" />
+        <div className="absolute -end-12 top-28 -z-10 h-56 w-56 rounded-full border border-white/10" />
+        <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 md:py-28 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-32">
           <div className="max-w-3xl">
-            <h1 className="text-3xl md:text-5xl font-bold leading-tight">{t.hero.title}</h1>
-            <p className="mt-4 text-base md:text-lg text-white/90">{t.hero.subtitle}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold tracking-wide text-teal-50 backdrop-blur">
+              <span className="h-2 w-2 rounded-full bg-teal-300" />
+              {t.hero.badge}
+            </div>
+            <h1 className="text-4xl font-bold leading-[1.15] tracking-tight sm:text-5xl lg:text-6xl">{t.hero.title}</h1>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-white/80 md:text-lg">{t.hero.subtitle}</p>
+            <div className="mt-9 flex flex-wrap gap-3">
               <button
                 onClick={() => scrollToId("contact")}
-                className="rounded-2xl px-5 py-3 bg-white text-slate-900 text-sm font-semibold hover:opacity-90"
+                className="rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-[#174f52] shadow-lg shadow-slate-950/10 transition hover:-translate-y-0.5 hover:bg-teal-50"
               >
                 {t.cta.getQuote}
               </button>
               <button
                 onClick={() => scrollToId("services")}
-                className="rounded-2xl px-5 py-3 border border-white/40 text-white text-sm hover:bg-white/10"
+                className="rounded-xl border border-white/30 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
                 {t.cta.explore}
               </button>
+            </div>
+          </div>
+
+          <div className="relative mx-auto hidden w-full max-w-lg lg:block">
+            <div className="absolute -inset-6 rounded-[2.5rem] bg-white/5 blur-sm" />
+            <div className="relative overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 p-8 shadow-2xl shadow-slate-950/20 backdrop-blur-xl">
+              <div className="flex items-center gap-5">
+                <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-3xl border border-white/20 bg-[#2E7C7C] shadow-xl">
+                  <SafeImage src="/logo.png" alt="Advanced Basics" fill className="object-contain" priority sizes="96px" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teal-200">ABC Medical Supply</p>
+                  <p className="mt-2 text-xl font-bold leading-snug">{t.hero.cardTitle}</p>
+                </div>
+              </div>
+              <div className="mt-8 grid grid-cols-2 gap-3">
+                {t.hero.capabilities.map((item) => (
+                  <div key={item} className="rounded-2xl border border-white/10 bg-white/10 p-4 text-sm font-medium text-white/90">
+                    <span className="mb-3 block h-1.5 w-8 rounded-full bg-teal-300" />
+                    {item}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* About */}
-      <section id="about" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-2 gap-10 items-center">
+      <section id="about" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28 lg:px-8">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_.9fr] lg:gap-20">
           <div>
-            <h2 className="text-2xl md:text-3xl font-semibold">{t.about.heading}</h2>
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#2E7C7C]">{t.about.eyebrow}</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">{t.about.heading}</h2>
             
-            <p className="mt-4 text-slate-600 leading-relaxed">{t.about.p1}</p>
-            <p className="mt-4 text-slate-600 leading-relaxed">{t.about.p2}</p>
+            <p className="mt-6 text-lg leading-8 text-slate-600">{t.about.p1}</p>
+            <p className="mt-4 leading-7 text-slate-600">{t.about.p2}</p>
 
             {t.about.bullets && t.about.bullets.length ? (
-              <ul className="mt-6 grid sm:grid-cols-2 gap-3 text-slate-700">
+              <ul className="mt-8 grid gap-3 text-slate-700 sm:grid-cols-2">
                 {t.about.bullets.map((b) => (
-                  <li key={b} className="flex items-start gap-2">
-                    <span className="mt-1 inline-block w-2 h-2 rounded-full bg-[#2E7C7C]" />
+                  <li key={b} className="flex items-center gap-3 rounded-xl bg-teal-50/70 px-4 py-3 text-sm font-medium">
+                    <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#2E7C7C] text-xs text-white">✓</span>
                     <span>{b}</span>
                   </li>
                 ))}
@@ -422,21 +464,23 @@ export function Site({ initialLang = "ar" }: { initialLang?: "ar" | "en" }) {
             ) : null}
 
             {t.about.mission && (
-              <div className="mt-8">
-                <h3 className="text-lg font-semibold">{t.about.missionHeading}</h3>
-                <p className="mt-2 text-slate-600 leading-relaxed">{t.about.mission}</p>
+              <div className="mt-8 border-s-4 border-[#2E7C7C] ps-5">
+                <h3 className="text-lg font-bold text-slate-900">{t.about.missionHeading}</h3>
+                <p className="mt-2 leading-7 text-slate-600">{t.about.mission}</p>
               </div>
             )}
 
             {t.about.vision && (
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold">{t.about.visionHeading}</h3>
-                <p className="mt-2 text-slate-600 leading-relaxed">{t.about.vision}</p>
+              <div className="mt-6 border-s-4 border-teal-200 ps-5">
+                <h3 className="text-lg font-bold text-slate-900">{t.about.visionHeading}</h3>
+                <p className="mt-2 leading-7 text-slate-600">{t.about.vision}</p>
               </div>
             )}
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
+          <div className="relative overflow-hidden rounded-[2rem] border border-teal-100 bg-gradient-to-br from-[#174f52] to-[#2E7C7C] p-8 text-white shadow-xl shadow-teal-950/10">
+            <div className="absolute -end-12 -top-12 h-40 w-40 rounded-full border border-white/10" />
+            <p className="mb-5 text-sm font-semibold text-teal-100">{t.stats.heading}</p>
             <Stat label={t.stats.years} value={t.statsVals.years} />
             <Stat label={t.stats.skus} value={t.statsVals.skus} />
             <Stat label={t.stats.partners} value={t.statsVals.partners} />
@@ -445,21 +489,25 @@ export function Site({ initialLang = "ar" }: { initialLang?: "ar" | "en" }) {
       </section>
 
       {/* Services */}
-      <section id="services" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-2xl md:text-3xl font-semibold text-center">{t.services.heading}</h2>
-        <p className="mt-3 text-center text-slate-600 max-w-3xl mx-auto">{t.services.sub}</p>
-        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-2 gap-5">
+      <section id="services" className="bg-white py-20 md:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <p className="text-center text-sm font-bold uppercase tracking-[0.18em] text-[#2E7C7C]">{t.services.eyebrow}</p>
+        <h2 className="mt-3 text-center text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">{t.services.heading}</h2>
+        <p className="mx-auto mt-4 max-w-3xl text-center leading-7 text-slate-600">{t.services.sub}</p>
+        <div className="mt-12 grid gap-5 sm:grid-cols-2">
           {t.services.items.map((s) => (
             <FeatureCard key={s.title} title={s.title} desc={s.desc} icon={s.icon} />
           ))}
         </div>
+        </div>
       </section>
 
       {/* Partners */}
-      <section id="partners" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-2xl md:text-3xl font-semibold text-center">{t.partners.heading}</h2>
-        <p className="mt-3 text-center text-slate-600 max-w-3xl mx-auto">{t.partners.sub}</p>
-        <div className="mt-10">
+      <section id="partners" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28 lg:px-8">
+        <p className="text-center text-sm font-bold uppercase tracking-[0.18em] text-[#2E7C7C]">{t.partners.eyebrow}</p>
+        <h2 className="mt-3 text-center text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">{t.partners.heading}</h2>
+        <p className="mx-auto mt-4 max-w-3xl text-center leading-7 text-slate-600">{t.partners.sub}</p>
+        <div className="mt-12">
           <PartnersCarousel partners={partners} isRTL={isRTL} />
         </div>
       </section>
@@ -467,10 +515,11 @@ export function Site({ initialLang = "ar" }: { initialLang?: "ar" | "en" }) {
       {/* Clients */}
       <section
         id="clients"
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-slate-50 rounded-3xl my-16 border border-slate-200"
+        className="mx-auto my-10 max-w-7xl rounded-[2rem] border border-slate-200 bg-white px-4 py-20 shadow-sm sm:px-6 md:my-20 lg:px-8"
       >
-        <h2 className="text-2xl md:text-3xl font-semibold text-center">{t.clients.heading}</h2>
-        <p className="mt-3 text-center text-slate-600 max-w-3xl mx-auto">{t.clients.sub}</p>
+        <p className="text-center text-sm font-bold uppercase tracking-[0.18em] text-[#2E7C7C]">{t.clients.eyebrow}</p>
+        <h2 className="mt-3 text-center text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">{t.clients.heading}</h2>
+        <p className="mx-auto mt-4 max-w-3xl text-center leading-7 text-slate-600">{t.clients.sub}</p>
 
         <div className="mt-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center justify-items-center">
           {[
@@ -490,7 +539,7 @@ export function Site({ initialLang = "ar" }: { initialLang?: "ar" | "en" }) {
           ].map((client, idx) => (
             <div
               key={`${client.name}-${idx}`}
-              className="relative w-24 h-24 transition-all duration-300"
+              className="relative h-24 w-24 opacity-75 grayscale transition-all duration-300 hover:scale-105 hover:opacity-100 hover:grayscale-0"
               title={client.name}
             >
               <SafeImage src={client.img} alt={client.name} fill className="object-contain" sizes="96px" />
@@ -500,21 +549,23 @@ export function Site({ initialLang = "ar" }: { initialLang?: "ar" | "en" }) {
       </section>
 
       {/* Contact */}
-      <section id="contact" className="bg-white border-t border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 grid md:grid-cols-2 gap-8">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-semibold">{t.contact.heading}</h2>
-            <p className="mt-3 text-slate-600">{t.contact.sub}</p>
-            <div className="mt-6 space-y-2 text-sm">
+      <section id="contact" className="relative overflow-hidden bg-[#123f43] text-white">
+        <div className="absolute -end-24 -top-24 h-80 w-80 rounded-full border border-white/10" />
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 md:py-28 lg:grid-cols-[.9fr_1.1fr] lg:px-8">
+          <div className="relative">
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-teal-200">{t.contact.eyebrow}</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{t.contact.heading}</h2>
+            <p className="mt-5 max-w-xl leading-7 text-white/70">{t.contact.sub}</p>
+            <div className="mt-8 space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6 text-sm backdrop-blur">
               <InfoRow label={t.contact.phoneLabel} value={t.contact.phone} />
               <InfoRow label={t.contact.emailLabel} value={t.contact.email} />
               <InfoRow label={t.contact.addressLabel} value={t.contact.address} />
-              <div className="mt-4 flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 pt-3">
                 <a
                   href={t.contact.whatsappHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex rounded-xl px-5 py-3 bg-[#2E7C7C] text-white text-sm font-semibold hover:opacity-90"
+                  className="inline-flex rounded-xl bg-white px-5 py-3 text-sm font-bold text-[#174f52] transition hover:bg-teal-50"
                 >
                   {t.cta.whatsapp}
                 </a>
@@ -522,7 +573,7 @@ export function Site({ initialLang = "ar" }: { initialLang?: "ar" | "en" }) {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
+          <div className="rounded-[2rem] bg-white p-6 text-slate-800 shadow-2xl shadow-slate-950/20 sm:p-8">
             <form
               onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
                 e.preventDefault();
@@ -545,7 +596,7 @@ export function Site({ initialLang = "ar" }: { initialLang?: "ar" | "en" }) {
               <Textarea label={t.form.message} name="message" rows={5} required />
               <button
                 type="submit"
-                className="w-full rounded-xl px-5 py-3 bg-slate-900 text-white font-semibold hover:opacity-90"
+                className="w-full rounded-xl bg-[#2E7C7C] px-5 py-3.5 font-bold text-white shadow-md transition hover:bg-[#256969]"
               >
                 {t.cta.send}
               </button>
@@ -554,13 +605,31 @@ export function Site({ initialLang = "ar" }: { initialLang?: "ar" | "en" }) {
         </div>
       </section>
 
-      <footer className="bg-slate-900 text-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-sm flex flex-col md:flex-row items-center justify-between gap-3">
-          <div>
+      <footer className="border-t border-white/10 bg-[#0d3033] text-slate-300">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 text-center text-sm sm:px-6 md:flex-row md:text-start lg:px-8">
+          <div className="flex items-center gap-3">
+            <div className="relative h-10 w-10 overflow-hidden rounded-xl bg-[#2E7C7C]">
+              <SafeImage src="/logo.png" alt="ABC" fill className="object-contain" sizes="40px" />
+            </div>
+            <span>
             © {new Date().getFullYear()} {t.companyName} — {t.companyArabic}. {t.footer.rights}
+            </span>
           </div>
+          <button onClick={() => scrollToId("about")} className="font-semibold text-teal-200 transition hover:text-white">
+            {t.footer.backToTop}
+          </button>
         </div>
       </footer>
+
+      <a
+        href={t.contact.whatsappHref}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={t.cta.whatsapp}
+        className="fixed bottom-5 end-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-xl font-bold text-white shadow-xl shadow-emerald-950/20 transition hover:-translate-y-1 hover:bg-[#20bd5a]"
+      >
+        <span aria-hidden="true">↗</span>
+      </a>
 
       <style>{`
         .rtl { direction: rtl; }
@@ -576,19 +645,19 @@ export default function HomePage() {
 
 function FeatureCard({ title, desc, icon }: { title: string; desc: string; icon: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow transition">
-      <div className="text-3xl">{icon}</div>
-      <div className="mt-3 font-semibold">{title}</div>
-      <p className="mt-2 text-sm text-slate-600 leading-relaxed">{desc}</p>
+    <div className="group rounded-3xl border border-slate-200 bg-slate-50/60 p-7 transition duration-300 hover:-translate-y-1 hover:border-teal-200 hover:bg-white hover:shadow-xl hover:shadow-slate-200/60">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-100 text-2xl transition group-hover:bg-[#2E7C7C] group-hover:shadow-lg">{icon}</div>
+      <div className="mt-5 text-lg font-bold text-slate-900">{title}</div>
+      <p className="mt-3 text-sm leading-7 text-slate-600">{desc}</p>
     </div>
   );
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b last:border-none">
-      <div className="text-slate-600">{label}</div>
-      <div className="text-xl font-semibold">{value}</div>
+    <div className="flex items-center justify-between border-b border-white/15 py-5 last:border-none">
+      <div className="text-sm text-white/70">{label}</div>
+      <div className="text-3xl font-bold tracking-tight text-white">{value}</div>
     </div>
   );
 }
@@ -614,7 +683,7 @@ function Input({
         name={name}
         type={type}
         required={required}
-        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#2E7C7C]"
+        className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-[#2E7C7C] focus:bg-white focus:ring-2 focus:ring-teal-100"
       />
     </label>
   );
@@ -641,7 +710,7 @@ function Textarea({
         name={name}
         rows={rows}
         required={required}
-        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#2E7C7C]"
+        className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-[#2E7C7C] focus:bg-white focus:ring-2 focus:ring-teal-100"
       />
     </label>
   );
@@ -649,9 +718,9 @@ function Textarea({
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="text-sm">
-      <span className="text-slate-500">{label} </span>
-      <span className="font-medium">{value}</span>
+    <div className="grid gap-1 sm:grid-cols-[110px_1fr]">
+      <span className="text-white/55">{label}</span>
+      <span className="font-medium text-white">{value}</span>
     </div>
   );
 }
@@ -662,13 +731,17 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 const EN = {
   companyName: "Advanced Basics For Trading Co.",
   companyArabic: "الأساسيات المتطورة للتجارة",
-  nav: { about: "About", services: "Services", partners: "Partners", clients: "Featured Clients", contact: "Contact" },
+  nav: { about: "About", services: "Services", partners: "Partners", clients: "Featured Clients", contact: "Contact", menu: "Open menu" },
   hero: {
+    badge: "Medical supply solutions across Saudi Arabia",
     title: "Trusted trading partner for medical solutions",
-    subtitle: "We supply quality medical products with reliable delivery, clear documentation, and responsive support."
+    subtitle: "We supply quality medical products with reliable delivery, clear documentation, and responsive support.",
+    cardTitle: "Reliable solutions for every stage of medical supply",
+    capabilities: ["Quality sourcing", "Tender support", "Reliable delivery", "Responsive service"]
   },
   cta: { getQuote: "Request a Quote", explore: "Explore Services", whatsapp: "WhatsApp", send: "Send Message" },
   about: {
+    eyebrow: "About Advanced Basics",
     heading: "Who We Are",
     p1: "We are a trading company focused on medical supplies, built on transparency, compliance, and fast logistics.",
     p2: "From tender documentation to last-mile delivery, we ensure a smooth supply experience for our customers.",
@@ -678,9 +751,10 @@ const EN = {
     visionHeading: "Vision",
     vision: "To become a preferred medical supply partner across the region."
   },
-  stats: { years: "Years of Experience", skus: "SKUs Supplied", partners: "Global Partners" },
-  statsVals: { years: "5+", skus: "5000+", partners: "10+" },
+  stats: { heading: "Our experience in numbers", years: "Years of Experience", skus: "SKUs Supplied", partners: "Global Partners" },
+  statsVals: { years: "10+", skus: "1500+", partners: "40+" },
   services: {
+    eyebrow: "What we provide",
     heading: "Medical Coverage Fields",
     sub: "We provide specialized medical supply solutions covering the main clinical departments in hospitals, according to approved standards and ensuring operational efficiency and service continuity.",
     items: [
@@ -706,9 +780,10 @@ const EN = {
       }
     ]
   },
-  partners: { heading: "Partners", sub: "Click a partner to open their website.", hint: "Tip: hover to pause autoplay." },
-  clients: { heading: "Featured Clients", sub: "Proud to serve leading institutions and organizations." },
+  partners: { eyebrow: "Global partnerships", heading: "Our Partners", sub: "Select a partner to visit their website or view their product catalog.", hint: "Tip: hover to pause autoplay." },
+  clients: { eyebrow: "Trusted relationships", heading: "Featured Clients", sub: "Proud to serve leading healthcare institutions and organizations." },
   contact: {
+    eyebrow: "Let’s work together",
     heading: "Get in Touch",
     sub: "Tell us what you need — we’ll send options and lead times.",
     phoneLabel: "Phone:",
@@ -720,19 +795,23 @@ const EN = {
     whatsappHref: "https://wa.me/966539326813"
   },
   form: { subject: "Website Inquiry", name: "Name", company: "Company", email: "Email", message: "Message" },
-  footer: { rights: "All rights reserved." }
+  footer: { rights: "All rights reserved.", backToTop: "Back to top" }
 };
 
 const AR = {
   companyName: "الأساسيات المتطورة للتجارة",
   companyArabic: "Advanced Basics For Trading Co.",
-  nav: { about: "من نحن", services: "خدماتنا", partners: "شركاؤنا", clients: "أبرز العملاء", contact: "تواصل معنا" },
+  nav: { about: "من نحن", services: "خدماتنا", partners: "شركاؤنا", clients: "أبرز العملاء", contact: "تواصل معنا", menu: "فتح القائمة" },
   hero: {
+    badge: "حلول توريد طبية في المملكة العربية السعودية",
     title: "شريك موثوق لحلول المستلزمات الطبية",
-    subtitle: "نوفر منتجات طبية عالية الجودة مع التزام بالتسليم ووضوح في الوثائق وخدمة سريعة."
+    subtitle: "نوفر منتجات طبية عالية الجودة مع التزام بالتسليم ووضوح في الوثائق وخدمة سريعة.",
+    cardTitle: "حلول موثوقة في كل مرحلة من مراحل التوريد الطبي",
+    capabilities: ["توريد بجودة عالية", "دعم المناقصات", "تسليم موثوق", "خدمة سريعة"]
   },
   cta: { getQuote: "اطلب عرض سعر", explore: "استكشف الخدمات", whatsapp: "واتساب", send: "إرسال" },
   about: {
+    eyebrow: "عن الأساسيات المتطورة",
     heading: "من نحن",
     overview: "نظرة عامة على الشركة",
     quote: "التميز في المنتجات هو البداية، لكن الرؤية الواضحة والقيادة الحكيمة هما أساس النجاح المستدام.",
@@ -744,9 +823,10 @@ const AR = {
     visionHeading: "رؤيتنا",
     vision: "أن نكون خيارًا مفضلًا لتوريد المستلزمات الطبية في المنطقة."
   },
-  stats: { years: "سنوات خبرة", skus: "عدد الأصناف المورّدة", partners: "شركاء عالميون" },
+  stats: { heading: "خبرتنا بالأرقام", years: "سنوات خبرة", skus: "عدد الأصناف المورّدة", partners: "شركاء عالميون" },
   statsVals: { years: "10+", skus: "1500+", partners: "40+" },
   services: {
+    eyebrow: "ما نقدمه",
     heading: "مجالات التغطية الطبية",
     sub: "نقدم حلول توريد طبية متخصصة تغطي الأقسام السريرية الرئيسية في المستشفيات، وفق المعايير المعتمدة وبما يضمن كفاءة التشغيل واستمرارية الخدمة.",
     items: [
@@ -772,9 +852,10 @@ const AR = {
       }
     ]
   },
-  partners: { heading: "شركاؤنا", sub: "اضغط على الشريك لفتح موقعه.", hint: "معلومة: مرّر المؤشر لإيقاف الحركة." },
-  clients: { heading: "أبرز العملاء", sub: "نفخر بخدمة كبرى المؤسسات والجهات." },
+  partners: { eyebrow: "شراكات عالمية", heading: "شركاؤنا", sub: "اختر الوكالة لزيارة موقعها أو استعراض كتالوج منتجاتها.", hint: "معلومة: مرّر المؤشر لإيقاف الحركة." },
+  clients: { eyebrow: "علاقات موثوقة", heading: "أبرز العملاء", sub: "نفخر بخدمة كبرى المؤسسات والجهات الصحية." },
   contact: {
+    eyebrow: "لنبدأ العمل معًا",
     heading: "تواصل معنا",
     sub: "أخبرنا باحتياجك لنرسل الخيارات ومدة التوريد.",
     phoneLabel: "الهاتف:",
@@ -786,5 +867,5 @@ const AR = {
     whatsappHref: "https://wa.me/966539326813"
   },
   form: { subject: "استفسار من الموقع", name: "الاسم", company: "الشركة", email: "البريد الإلكتروني", message: "الرسالة" },
-  footer: { rights: "جميع الحقوق محفوظة" }
+  footer: { rights: "جميع الحقوق محفوظة", backToTop: "العودة للأعلى" }
 };
