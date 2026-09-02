@@ -1,7 +1,7 @@
 "use client";
 
 import Image, { type StaticImageData } from "next/image";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // =====================
 // Helpers: safe image src + fallback
@@ -259,14 +259,16 @@ function runSelfTests() {
 // =====================
 // Main Page
 // =====================
-export default function Site() {
-  const [lang, setLang] = useState<"ar" | "en">("ar");
-  const t = useMemo(() => (lang === "ar" ? AR : EN), [lang]);
+export function Site({ initialLang = "ar" }: { initialLang?: "ar" | "en" }) {
+  const lang = initialLang;
+  const t = lang === "ar" ? AR : EN;
   const isRTL = lang === "ar";
 
   useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = isRTL ? "rtl" : "ltr";
     if (process.env.NODE_ENV !== "production") runSelfTests();
-  }, []);
+  }, [isRTL, lang]);
 
   const navItems = [
     { id: "about", label: t.nav.about },
@@ -347,13 +349,14 @@ export default function Site() {
             >
               {t.cta.whatsapp}
             </a>
-            <button
-              onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+            <a
+              href={lang === "ar" ? "/en" : "/"}
               className="rounded-xl px-3 py-2 text-sm bg-[#2E7C7C] text-white hover:opacity-90"
-              aria-label="Toggle language"
+              hrefLang={lang === "ar" ? "en" : "ar"}
+              aria-label={lang === "ar" ? "Switch to English" : "التبديل إلى العربية"}
             >
               {lang === "ar" ? "English" : "العربية"}
-            </button>
+            </a>
           </div>
         </div>
 
@@ -565,6 +568,10 @@ export default function Site() {
       `}</style>
     </div>
   );
+}
+
+export default function HomePage() {
+  return <Site initialLang="ar" />;
 }
 
 function FeatureCard({ title, desc, icon }: { title: string; desc: string; icon: string }) {

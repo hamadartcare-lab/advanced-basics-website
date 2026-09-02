@@ -14,8 +14,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://advancebasics.com"),
-  title: "Advanced Basics Trading Company",
-  description: "Medical supplies and healthcare solutions",
+  title: "شركة الأساسيات المتطورة للتجارة",
+  description:
+    "شركة متخصصة في توريد المستلزمات الطبية عالية الجودة، مع حلول موثوقة للتوريد والمناقصات والتوزيع في المملكة العربية السعودية.",
+  alternates: {
+    canonical: "/",
+    languages: {
+      ar: "/",
+      en: "/en",
+      "x-default": "/",
+    },
+  },
   icons: {
     icon: [{ url: "/icon.png", type: "image/png" }],
     shortcut: "/icon.png",
@@ -29,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ar" dir="rtl">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
